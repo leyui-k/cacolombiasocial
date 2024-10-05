@@ -1,0 +1,186 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="" />
+	<link href="{% static 'favicon.png' %}" rel="icon" type="image/png">
+    <meta name="keywords" content="" />
+	<title>Perfil - {{user_profile.user.username}}</title>
+    <link rel="stylesheet" href="{% static 'css/main.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/color.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+	<script src="https://unpkg.com/feather-icons"></script>
+
+</head>
+<body>
+
+	<section>
+		<div class="feature-photo" style="height: 220px;">
+			<figure><img src="{% static 'images/resources/timeline-1.png' %}" alt="" style="height: 240px;"></figure>
+		</div>
+			
+			<!-- Línea negra -->
+	        <div style="position: absolute; bottom: -20px; left: 0; right: 0; background-color: rgba(46, 46, 46, 0.8); padding: 0px; height: 80px;"></div>
+
+						<!-- Botones -->
+						<form action="/follow" method="POST">
+							{% csrf_token %}
+							<div class="add-btn" style="margin-top: 124px;">
+								{% if user_post_length == 0 %}
+									<span style="color: white; font-size: 12px; margin-right: 5px;"><b>0 posts</b></span>
+								{% elif user_post_length == 1 %}
+									<span style="color: white; font-size: 12px; margin-right: 5px;"><b>{{user_post_length}} Post</b></span>
+								{% else %}
+									<span style="color: white; font-size: 12px; margin-right: 5px;"><b>{{user_post_length}} Posts</b></span>
+								{% endif %}
+								{% if user_followers == 0 or user_followers == 1 %}
+									<span style="color: white; font-size: 12px; margin-right: 5px;"><b>{{user_followers}} seguidor</b></span>
+								{% else %}
+									<span style="color: white; font-size: 12px; margin-right: 5px;"><b>{{user_followers}} seguidores</b></span>
+								{% endif %}
+								<span style="color: white; font-size: 12px; margin-right: 5px;"><b>{{user_following}} siguiendo</b></span>
+
+								<input type="hidden" value="{{user.username}}" name="follower" />
+								<input type="hidden" value="{{user_object.username}}" name="user" />
+								{% if user_object.username == user.username %}
+									<a href="/settings" style="color: white; border-width: 0px; margin-right: 5px;" data-ripple="">
+										<span class="icon-feather-settings" data-feather="settings" style="width: 15px; height: 15px; margin-top: 2px; margin-bottom: -2px;"></span>
+									</a>
+								{% else %}
+									<a data-ripple style="border-width: 0px; margin-right: -20px;">
+										<button type="submit" style="color: white; background-color: #1f1f1f; border: #1f1f1f;">{{button_text}}</button>
+									</a>
+								{% endif %}
+							</div>
+						</form>
+
+
+			
+	</section>
+
+	<div class="add-btn" style="margin-top: -50px;">
+		<div style="margin-right: -5px;">
+			<a href="/">
+				<span class="icon-feather-home" data-feather="home" style="width: 30px; height: 30px;"></span>
+			</a>
+		</div>
+	</div>
+
+		<!-- Avatar -->
+		<div class="col-lg-2" style="top: -40px;">
+			<div class="d-flex align-items-center">
+				<figure>
+					<img src="{{ user_profile.profileimg.url }}" style="height: 65px; width: 65px;">
+				</figure>
+			</div>
+		</div>
+
+		<div class="col-sm-1" style="top: -55px;">
+				<span style="color: #dedcdc; font-size: 17px;"><b>@{{user_profile.user.username}}</b></span>
+		</div>
+
+		<!-- top area -->
+		<section>
+			<div class="bio" style="color: #c0c0c0; font-size: 13px; width: 300px; overflow: hidden; word-wrap: break-word; margin-top: -40px;">
+				<p id="shortBio" style="color: #dedcdc; font-size: 13px;"> <b>{{ user_profile.bio|truncatechars:100 }}</b></p>
+				<p id="fullBio" style="display: none; color: #dedcdc; font-size: 13px;"><b>{{user_profile.bio}}</b></p>
+				{% if user_profile.bio|length > 100 %}
+					<a href="javascript:void(0);" style="display: inline;" onclick="toggleBio()">Leer más</a>
+				{% endif %}
+			</div>
+		</section>
+		
+		
+	<section>
+		<div class="gap gray-bg">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="row" id="page-contents">
+							<div class="col-lg-3">
+								<aside class="sidebar static">
+								</aside>
+							</div>
+							
+							<div class="central-meta">
+								<ul class="photos">
+									{% for post in user_posts %}
+									<li>
+										<div style="background-color: #5e5e5e; padding: 10px; margin-right: 7px; margin-bottom: 5px; border-color: #5e5e5e;">
+											{% if post.video %}
+											{% if post.is_gif %}
+											<a href="{{ post.image.url }}" style="height: 167px; width: 142px;">
+											<img src="{{ post.image.url }}" style="height: 167px; width: 142px;">
+											</a>
+								{% else %}
+								<a href="{{ post.video.url }}" style="height: 167px; width: 142px;">
+									<video controls style="height: 167px; width: 142px;">
+										<source src="{{ post.video.url }}" type="video/mp4">
+									</video>
+								</a>
+									{% endif %}
+
+								{% elif post.image %}
+									<a class="strip" href="{{ post.image.url }}" title="" data-strip-group="mygroup" data-strip-group-options="loop: false" style="height: 167px; width: 142px;">
+										<img src="{{ post.image.url }}" style="height: 167px; width: 142px;">
+
+									</a>
+								{% endif %}
+											<div style="display: flex; align-items: center; margin-top: 5px;">
+												<span data-feather="thumbs-up" style="margin-bottom: 3px;"></span>
+												<p  style="margin-top: 2px; margin-left: 10px; margin-bottom: 1px;  color: aliceblue;"> <b>{{post.no_of_likes }} </p></b>
+											</div>
+										</div>
+									</li>
+									{% endfor %}
+
+								</ul>
+							</div>
+								<!-- photos -->
+							</div>
+							<!-- centerl meta -->
+							<div class="col-lg-3">
+								<aside class="sidebar static">
+								</aside>
+							</div><!-- sidebar -->
+						</div>	
+					</div>
+				</div>
+			</div>
+		</div>	
+	</section>
+
+	
+	<script data-cfasync="false" src="{% static '../../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js' %}"></script><script src="{% static 'js/main.min.js' %}"></script>
+	<script src="{% static 'js/script.js' %}"></script>
+	<script>
+		function toggleBio() {
+			var shortBio = document.getElementById('shortBio');
+			var fullBio = document.getElementById('fullBio');
+			var toggleLink = document.querySelector('.bio a');
+	
+			if (shortBio.style.display === 'none') {
+				// Mostrar la biografía abreviada y ocultar la completa
+				shortBio.style.display = 'inline';
+				fullBio.style.display = 'none';
+				toggleLink.textContent = 'Leer más';
+			} else {
+				// Mostrar la biografía completa y ocultar la abreviada
+				shortBio.style.display = 'none';
+				fullBio.style.display = 'inline';
+				toggleLink.textContent = 'Ocultar';
+			}
+		}
+	</script>
+    <script>
+        feather.replace()
+    </script>
+
+</body>	
+
+
+</html>
